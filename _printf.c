@@ -1,18 +1,20 @@
 #include "main.h"
+
 /**
- * _printf - produces output according to format
- * @format: format specifier pointer
- * Return: number of characters printed
+ * _printf - formatted output conversion and print data.
+ * @format: input string.
+ *
+ * Return: number of chars printed.
  */
 int _printf(const char *format, ...)
 {
-	va_list args;
-	int (*pfunc)(va_list, char *, unsigned int);
-	char *b;
-	unsigned int i = 0, j = 0, length = 0;
+	unsigned int i = 0, len = 0, ibuf = 0;
+	va_list arguments;
+	int (*function)(va_list, char *, unsigned int);
+	char *buffer;
 
-	va_start(args, format),	b = malloc(sizeof(char) * 1024);
-	if (!format || !b || (format[i] == '%' && !format[i + 1]))
+	va_start(arguments, format), buffer = malloc(sizeof(char) * 1024);
+	if (!format || !buffer || (format[i] == '%' && !format[i + 1]))
 		return (-1);
 	if (!format[i])
 		return (0);
@@ -21,29 +23,29 @@ int _printf(const char *format, ...)
 		if (format[i] == '%')
 		{
 			if (format[i + 1] == '\0')
-			{	print_buf(b, j), free(b), va_end(args);
+			{	print_buf(buffer, ibuf), free(buffer), va_end(arguments);
 				return (-1);
 			}
 			else
-			{	pfunc = get_print_func(format, i + 1);
-				if (pfunc == NULL)
+			{	function = get_print_func(format, i + 1);
+				if (function == NULL)
 				{
 					if (format[i + 1] == ' ' && !format[i + 2])
 						return (-1);
-					handl_buf(b, format[i], j), length++, i--;
+					handl_buf(buffer, format[i], ibuf), len++, i--;
 				}
 				else
 				{
-					length += pfunc(args, b, j);
+					len += function(arguments, buffer, ibuf);
 					i += ev_print_func(format, i + 1);
 				}
 			} i++;
 		}
 		else
-			handl_buf(b, format[i], j), length++;
-		for (j = length; j > 1024; j -= 1024)
+			handl_buf(buffer, format[i], ibuf), len++;
+		for (ibuf = len; ibuf > 1024; ibuf -= 1024)
 			;
 	}
-	print_buf(b, j), free(b), va_end(args);
-	return (length);
+	print_buf(buffer, ibuf), free(buffer), va_end(arguments);
+	return (len);
 }
